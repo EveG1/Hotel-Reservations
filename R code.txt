@@ -1,0 +1,301 @@
+ set.seed(111)
+data <- read.csv(file.choose(), header=TRUE, sep=";", stringsAsFactors=TRUE)
+head(data)
+str(data)
+
+data$number.of.children<-as.factor(data$number.of.children)
+data$number.of.weekend.nights<-as.factor(data$number.of.weekend.nights)
+data$number.of.week.nights<-as.factor(data$number.of.week.nights)
+data$car.parking.space<-as.factor(data$car.parking.space)
+data$repeated<-as.factor(data$repeated)
+
+data$lead.time<-as.numeric(as.character(data$lead.time))
+data<-na.omit(data)
+str(data)
+
+#ερωτημα1
+#για ποσοτικες
+summary(data$lead.time)
+which(data$lead.time==-99)
+data<-data[-77,]
+
+summary(data$P.C)
+summary(data$P.not.C)
+summary(data$average.price)
+summary(data$special.requests)
+
+#histogramata
+par(mfrow=c(2,3))
+hist(data$lead.time,probability = T,col=rainbow(10, alpha=0.1)[8], main='Histogram of Lead Time')
+hist(data$P.C,probability = T,col=rainbow(10, alpha=0.1)[8], main='Histogram of P.C')
+hist(data$P.not.C,probability = T,col=rainbow(10, alpha=0.1)[8], main='Histogram of P.not.C')
+hist(data$special.requests,probability = T,col=rainbow(10, alpha=0.1)[8], main='Histogram of Special Requests')
+hist(data$average.price,probability = T,col=rainbow(10, alpha=0.1)[8], main='Histogram of Average Price')
+
+#boxplots
+par(mfrow=c(2,3))
+boxplot(data$lead.time, main='Boxplot of Lead Time')
+boxplot(data$P.C, main='Boxplot of P.C')
+boxplot(data$P.not.C, main='Boxplot of P.not.C')
+boxplot(data$special.requests,main='Boxplot of Special Requests')
+boxplot(data$average.price, main='Boxplot of Average Price')
+
+#για κατηγορικες
+cbind(table(data$number.of.adults), prop.table(table(data$number.of.adults)))
+which(data$number.of.adults=='FA')
+data<-data[-208,]
+
+cbind(table(data$number.of.children), prop.table(table(data$number.of.children)))
+data[which(data$number.of.adults=='0'),]  
+#για μηδεν αριθμο ενηλικων εχουμε στις 10 από τις 11 παρατηρησεις την εμφανηση 2 παιδιων. Αν θεωρησουμε ότι 2 εφηβοι μπορουν να κανουν κρατηση τοτε δεν θα αφαιρεσω τις μηδενικες τιμες για τους ενηλικες
+#αυτο που θα αφαιρεσω θα είναι η μια παρατηρηση που αντιστοιχει σε μηδεν ενηλικους και μηδεν παιδια
+data<-data[-39,]
+
+cbind(table(data$number.of.week.nights), prop.table(table(data$number.of.week.nights)))
+cbind(table(data$number.of.weekend.nights),prop.table(table(data$number.of.weekend.nights)))
+cbind(table(data$type.of.meal), prop.table(table(data$type.of.meal))) 
+which(data$type.of.meal=='Nemo')
+which(data$type.of.meal=='Zari')
+which(data$type.of.meal=='')
+data<-data[c(-353,-416,-182),] 
+
+data$type.of.meal <- droplevels(data$type.of.meal)
+data$number.of.adults<- droplevels(data$number.of.adults)
+
+cbind(table(data$car.parking.space), prop.table(table(data$car.parking.space))) 
+cbind(table(data$room.type), prop.table(table(data$room.type))) 
+which(data$room.type=='')
+data<-data[c(-126,-270),] 
+data$room.type <- droplevels(data$room.type)
+
+cbind(table(data$market.segment.type), prop.table(table(data$market.segment.type))) 
+which(data$market.segment.type=='')
+which(data$market.segment.type=='Tetaket')
+which(data$market.segment.type=='Aviation')
+data<-data[c(-319,-481),] 
+data<-data[-which(data$market.segment.type=='Aviation'),]
+data$market.segment.type<- droplevels(data$market.segment.type)
+
+cbind(table(data$repeated), prop.table(table(data$repeated))) 
+cbind(table(data$booking.status), prop.table(table(data$booking.status))) 
+
+which(data$date.of.reservation=='')
+data<-data[-216,] 
+data$date.of.reservation <- droplevels(data$date.of.reservation)
+data$date.of.reservation <- gsub("-", "/", data$date.of.reservation)
+
+#barplots
+par(mfrow=c(2,3))
+barplot(100*prop.table(table(data$number.of.adults)),ylab='Percentage(%)', xlab='Number of Adults')
+barplot(100*prop.table(table(data$number.of.children)),ylab='Percentage(%)', xlab='Number of Children')
+barplot(100*prop.table(table(data$number.of.weekend.nights)),ylab='Percentage(%)', xlab='Number of Weekend Nights')
+barplot(100*prop.table(table(data$number.of.week.nights)),ylab='Percentage(%)', xlab='Number of Week Nights')
+barplot(100*prop.table(table(data$type.of.meal)),ylab='Percentage(%)', xlab='Type of Meal')
+
+par(mfrow=c(2,3))
+barplot(100*prop.table(table(data$car.parking.space)),ylab='Percentage(%)', xlab='Car Parking Space')
+barplot(100*prop.table(table(data$room.type)),ylab='Percentage(%)', xlab='Room Type')
+barplot(100*prop.table(table(data$market.segment.type)),ylab='Percentage(%)', xlab='Market Segment Type')
+barplot(100*prop.table(table(data$repeated)),ylab='Percentage(%)', xlab='Repeated')
+barplot(100*prop.table(table(data$booking.status)),ylab='Percentage(%)', xlab='Booking Status')
+
+
+#ερωτημα2
+table(data$number.of.adults,data$market.segment.type)
+table(data$number.of.children,data$market.segment.type)
+
+par(mfrow=c(1,2))
+barplot(table(data$number.of.adults,data$market.segment.type), beside=T,cex.names=0.8, col=c('green','red','yellow','orange'))
+legend("topleft", legend=c('0', '1','2','3'), fill=c('green','red','yellow','orange'), cex=0.8, bty="n")
+title(main="Number of adults", cex.main=1.2)
+
+barplot(table(data$number.of.children,data$market.segment.type), beside=T,cex.names=0.8, col=c('green','red','yellow','orange'))
+legend("topleft", legend=c('0', '1','2','3'), fill=c('green','red','yellow','orange'), cex=0.8, bty="n")
+title(main="Number of children", cex.main=1.2)
+
+
+#ερωτημα3
+table1<-table(data$number.of.weekend.nights,data$market.segment.type)
+colSums(table1)       #αθροιζουμε ολες τις στηλες 
+#οι περισσοτερες διανυκτερευσεις εγιναν στο online
+
+table2<-table(data$number.of.week.nights,data$market.segment.type)
+colSums(table2)    #οι λιγοτερες διανυκτερευσεις εγιναν στο complementary
+
+#ερωτημα4
+cbind(table(data$market.segment.type), prop.table(table(data$market.segment.type))) 
+#στο Online
+barplot(table(data$market.segment.type),ylab='Numbers of Bookings', xlab='Market segment type')
+
+#ερωτημα5
+aggregate(average.price ~ number.of.weekend.nights, data = data, summary)
+boxplot(data$average.price ~ data$number.of.weekend.nights, xlab = "Number of Weekend Nights", ylab = "Average Price",main = "Average Price by Number of Weekend Nights")
+
+#ερωτημα6
+aggregate(average.price ~ booking.status, data = data, summary)
+boxplot(data$average.price ~ data$booking.status, xlab = "Booking Status", ylab = "Average Price",main = "Average Price by Booking Status")
+
+#ερωτημα7
+#σχεση για ποσοτικες
+cor(data$average.price,data$lead.time,method = 'kendall')
+cor(data$average.price,data$P.C,method = 'kendall')
+cor(data$average.price,data$P.not.C,method = 'kendall')
+cor(data$average.price,data$special.requests,method = 'kendall')
+#Οι τιμες είναι πολύ κοντά στο 0, υποδεικνύοντας μια ασθενής συσχέτιση
+
+
+#σχεση για κατηγορικες
+par(mfrow=c(2,3))
+boxplot(data$average.price ~ data$number.of.adults, main="Average Price by Number of Adults", xlab="Number of Adults", ylab="Average Price")
+boxplot(data$average.price ~ data$number.of.week.nights, main="Average Price by Number of Week Nights", xlab="Number of Week Nights", ylab="Average Price")
+boxplot(data$average.price ~ data$type.of.meal, main="Average Price by Type of Meal", xlab="Type of Meal", ylab="Average Price")
+boxplot(data$average.price ~ data$room.type, main="Average Price by Room Type", xlab="Room Type", ylab="Average Price")
+boxplot(data$average.price ~ data$market.segment.type, main="Average Price by Market Segment Type", xlab="Market Segment Type", ylab="Average Price")
+boxplot(data$average.price ~ data$number.of.children, main="Average Price by Number of Children", xlab="Number of Children", ylab="Average Price")
+
+
+#ερωτημα8
+table<-table(data$booking.status,data$market.segment.type) 
+#τις περισσοτερες κρατησεις ειτε ακυρωμενες ειτε μη ακυρωμενες τις εχει το online
+
+colnames(table)[which.max(table['Canceled', ])]
+colnames(table)[which.max(table['Not_Canceled', ])]
+
+#ερωτημα9
+#a
+max1<-aggregate(special.requests ~ room.type, data = data, sum)   #αθροιζω όλα τα request που εχω για το κάθε room type
+max1[order(-max1$special.requests), ][1:3, ]   #ταξινομω τα αποτελεσματα με βαση την μεγιστη τιμη και κραταω τις 3 πρωτες τιμες 
+#b
+max2<-aggregate(lead.time ~ room.type, data = data, sum)      #αθροιζω όλα τα lead time που εχω για το καθε room type
+max2[order(-max2$lead.time), ][1:3, ]   #ταξινομω τα αποτελεσματα με βαση την μεγιστη τιμη και κραταω τις 3 πρωτες τιμες
+#c 
+max3<-table(data$number.of.adults,data$room.type)
+sort(colSums(max3), decreasing = T)[1:3]  
+
+#ερωτημα10
+function1 <- function() {
+   top_bookings <- list()
+  room_types <- unique(data$room.type)
+  
+  for (room in room_types) {
+    room_data <- data[data$room.type == room, ]
+    
+    if (nrow(room_data) < 5) {
+      return <- paste( room, "has", nrow(room_data), "bookings.")
+      top_bookings[[room]] <- return
+    } else {
+      sort <- room_data[order(-room_data$average.price), ]
+      top5 <- sort$Booking_ID[1:5]
+      top_bookings[[room]] <- top5
+    }
+  }
+  
+  return(top_bookings)
+}
+function1()
+
+#ερωτημα11
+meal<-split(data$average.price, data$type.of.meal)
+maxmeal <- sapply(meal, function(x) max(x))
+
+n1<-which(data$type.of.meal==names(maxmeal)[1] & data$average.price==as.numeric(maxmeal)[1] )
+n2<-which(data$type.of.meal==names(maxmeal)[2] & data$average.price==as.numeric(maxmeal)[2] )
+n3<-which(data$type.of.meal==names(maxmeal)[3] & data$average.price==as.numeric(maxmeal)[3] )
+n4<-which(data$type.of.meal==names(maxmeal)[4] & data$average.price==as.numeric(maxmeal)[4] )
+
+booking_id<-data$Booking_ID[c(n1,n2,n3,n4)]
+pinakas1<-as.data.frame(booking_id,names(maxmeal))
+
+
+#ερωτημα12
+price<-(data$average.price - mean(data$average.price))/sd(data$average.price)    #τυποποιω το average price
+meal2<-split(price, data$type.of.meal)
+maxmeal2 <- sapply(meal2, function(x) max(x))
+
+n1<-which(data$type.of.meal==names(maxmeal2)[1] & price==as.numeric(maxmeal2)[1] )
+n2<-which(data$type.of.meal==names(maxmeal2)[2] & price==as.numeric(maxmeal2)[2] )
+n3<-which(data$type.of.meal==names(maxmeal2)[3] & price==as.numeric(maxmeal2)[3] )
+n4<-which(data$type.of.meal==names(maxmeal2)[4] & price==as.numeric(maxmeal2)[4] )
+
+booking_id2<-data$Booking_ID[c(n1,n2,n3,n4)]
+pinakas2<-as.data.frame(booking_id2,names(maxmeal2))
+
+cbind(pinakas1,pinakas2)    #παρολο που τυποποιησαμε τις τιμες, οι κρατησεις είναι οι ιδιες 
+
+#ερωτημα13
+skewness <- sum((data$lead.time - mean(data$lead.time))^3) / (length(data$lead.time) * sd(data$lead.time)^3)
+kurtosis <- sum((data$lead.time - mean(data$lead.time)^4) / (length(data$lead.time) * sd(data$lead.time)^4)) - 3
+
+#skweness (0 συμμετρικη, >0 θετικη ασυμετρια, <0 αρνητικη ασυμετρια)
+#kurtosis (μεσοκυρτη=0, πλατικυρτη <0, λεπτοκυρτη>0)
+
+hist(data$lead.time, main="Lead Time Distribution", xlab="Lead Time")
+
+#ερωτημα14
+leadtime<-(data$lead.time - mean(data$lead.time))/sd(data$lead.time) #τυποποιω το lead time
+skewness2 <- sum((leadtime - mean(leadtime))^3) / (length(leadtime) * sd(leadtime)^3)
+kurtosis2 <- sum((leadtime - mean(leadtime)^4) / (length(leadtime) * sd(leadtime)^4)) - 3
+
+hist(leadtime, main="Lead Time Distribution", xlab="Standard Lead Time")
+
+#ερωτημα15
+table4 <- table(data$number.of.week.nights)
+cumsums <- cumsum(prop.table(table4))
+sinthiki <- names(cumsums[cumsums <= 0.9375])   #αριθμοι διανυκτερεύσεων οπου η αθροιστικη αναλογια είναι μικροτερη ή ιση από 0,9375
+min <- min(as.numeric(sinthiki)) #ελαχιστος αριθμος εβδομαδιαιων διανυκτερευσεων 
+max<- max(as.numeric(sinthiki))   #μεγιστος αριθμος εβδομαδιαιων διανυκτερευσεων
+min
+max
+
+#ερωτημα16
+dates <- as.Date(data$date.of.reservation, format = "%m/%d/%Y" )
+months <- format(dates, "%m")
+as.factor(months)   #παρατηρουμε καποια Na αρα ερχομαστε να ελέγξουμε που αντιστοιχουν αυτές οι τιμες 
+which(is.na(months))
+data$date.of.reservation[which(is.na(months))]
+data<-data[-which(is.na(months)),]   
+#αφαιρω τις ημερομηνιες που είναι λανθασμενες. Καποιες ημερομηνιες είναι γραμμενες με άλλη μορφη αλλα θα τις αφαιρεσω κατευθειαν γιατι θα είναι παλι λανθασμενες. 
+
+#a τροπος
+monthprice<- split(data$average.price, months) #χωριζω τις τιμες average price με βαση τους μηνες
+meanprice <- sapply(monthprice, sum)   #βρισκω το αθροισμα των μεσων τιμων για κάθε μηνα της λιστας 
+
+#b τροπος 
+aggregate(average.price ~ months, data = data, sum)
+
+
+#ερωτημα17
+x <- 23  #023 αρα κραταω το 23
+x2 <- seq(from = 1, to = x, by = 5)
+
+average_price_missing <- data$average.price
+average_price_missing[x2] <- NA
+
+summary(data$average.price)
+summary(average_price_missing) 
+
+#ερωτημα18
+plithosNA <- length(x2)
+min <- min(average_price_missing, na.rm = TRUE)
+max <- max(average_price_missing, na.rm = TRUE)
+x3 <- runif(plithosNA, min = min, max = max)    #ακολουθια τυχαιων αριθμων
+
+average_price_new <- average_price_missing
+average_price_new[is.na(average_price_missing)] <- x3
+average_price_new
+
+#ερωτημα19
+data2<-data[data$average.price>=50,]
+average_price_group <- ifelse(data2$average.price >= 50 & data2$average.price < 110, "Low",
+                       ifelse(data2$average.price >= 110 & data2$average.price < 170, "Medium", "High"))
+
+average_price_group<-as.factor(average_price_group)
+aggregate(P.C ~ average_price_group, data = data2, sum)
+aggregate(P.not.C ~ average_price_group, data = data2, sum)
+
+#ερωτημα20
+data3 <- data[data$average.price >= 100, ]
+table3<-table(data3$number.of.adults,data3$number.of.children,data3$booking.status) #πινακας συχνοτητων για τις 3 μεταβλητες
+table3['1' ,'2','Not_Canceled']
+table3['1' ,'3','Not_Canceled']
+#αρα δεν υπαρχει πελατης που να μπορει να παρει δωρεαν κρατηση 
